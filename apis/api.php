@@ -2,12 +2,12 @@
 header("Content-Type: application/json");
 
 include_once 'db.php';
-include_once 'class_user.php';
+include_once 'class_relojes.php';
 
 $db = new Database();
-$db ->getConnection();
+$db = $database->getConnection();
 
-$relojes = new user_class($db);
+$relojes = new Relojes($db);
 
 $method = $_SERVER['REQUEST_METHOD'];
 
@@ -16,9 +16,9 @@ switch ($method) {
         $id = isset($_GET['id']) ? $_GET['id'] : null;
         if ($id !== null) {
             $relojes->id = $id;
-            $result = $relojes->getAllUsers();
+            $result = $relojes->readOne();
         } else {
-            $result = $relojes->getUser($relojes_id,$marca);
+            $result = $relojes->readAll();
         }
         echo json_encode($result);
         break;
@@ -35,7 +35,7 @@ switch ($method) {
             $relojes->precio = $data->precio;
             $relojes->material = $data->material;
 
-            if ($relojes->updateUser($id, $nombre, $marca, $precio,  $material)) {
+            if ($relojes->update()) {
                 echo json_encode(array("message" => "Los datos han sido actualizados."));
             } else {
                 echo json_encode(array("message" => "No se han actualizado los datos."));
@@ -49,7 +49,7 @@ switch ($method) {
         $id = isset($_GET['id']) ? $_GET['id'] : null;
         if ($id !== null) {
             $relojes->id = $id;
-            if ($relojes->deleteUser($id)) {
+            if ($relojes->delete()) {
                 echo json_encode(array("message" => "Datos eliminados."));
             } else {
                 echo json_encode(array("message" => "Fallo al eliminar datos."));
@@ -68,7 +68,7 @@ switch ($method) {
             $relojes->precio = $data->precio;
             $relojes->material = $data->material;
            
-            if ($relojes->insertUser($nombre, $marca, $precio, $material)) {
+            if ($relojes->create()) {
                 echo json_encode(array("message" => "Nuevos datos creados correctamente."));
             } else {
                 echo json_encode(array("message" => "Fallo al crear nuevos datos."));
