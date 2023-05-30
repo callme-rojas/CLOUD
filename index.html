@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CRUD de Relojes</title>
+    <!-- Incluir los estilos de Bootstrap -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            padding-top: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .form-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .table-container {
+            background-color: #fff;
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-editar,
+        .btn-eliminar {
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>CRUD de Relojes</h2>
+
+        <!-- Formulario para insertar un nuevo reloj -->
+        <div class="form-container">
+            <h4>Agregar un nuevo reloj:</h4>
+            <form id="formAgregar">
+                <div class="form-group">
+                    <label>Nombre:</label>
+                    <input type="text" class="form-control" name="nombre" required>
+                </div>
+                <div class="form-group">
+                    <label>Marca:</label>
+                    <input type="text" class="form-control" name="marca" required>
+                </div>
+                <div class="form-group">
+                    <label>Precio:</label>
+                    <input type="number" class="form-control" name="precio" required>
+                </div>
+                <div class="form-group">
+                    <label>Material:</label>
+                    <input type="text" class="form-control" name="material" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Agregar</button>
+            </form>
+        </div>
+
+        <!-- Tabla para mostrar los relojes existentes -->
+        <div class="table-container">
+            <h4>Relojes existentes:</h4>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Marca</th>
+                        <th>Precio</th>
+                        <th>Material</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaRelojes"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Incluir jQuery y el script personalizado -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+        // Función para cargar la tabla de relojes al cargar la página
+        $(document).ready(function() {
+            cargarTablaRelojes();
+        });
+
+        // Función para cargar la tabla de relojes mediante una solicitud AJAX
+        function cargarTablaRelojes() {
+            $.ajax({
+                url: 'api.php',
+                type: 'GET',
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        var relojes = response.data;
+                        var tablaHTML = '';
+                        for (var i = 0; i < relojes.length; i++) {
+                            tablaHTML += '<tr>';
+                            tablaHTML += '<td>' + relojes[i].relojes_id + '</td>';
+                            tablaHTML += '<td>' + relojes[i].relojes_nombre + '</td>';
+                            tablaHTML += '<td>' + relojes[i].relojes_marca + '</td>';
+                            tablaHTML += '<td>' + relojes[i].relojes_precio + '</td>';
+                            tablaHTML += '<td>' + relojes[i].relojes_material + '</td>';
+                            tablaHTML += '<td>';
+                            tablaHTML += '<button type="button" class="btn btn-primary btn-editar" data-id="' + relojes[i].relojes_id + '">Editar</button> ';
+                            tablaHTML += '<button type="button" class="btn btn-danger btn-eliminar" data-id="' + relojes[i].relojes_id + '">Eliminar</button>';
+                            tablaHTML += '</td>';
+                            tablaHTML += '</tr>';
+                        }
+                        $('#tablaRelojes').html(tablaHTML);
+                    }
+                }
+            });
+        }
+
+        // Manejador de evento para el formulario de agregar
+        $('#formAgregar').submit(function(e) {
+            e.preventDefault();
+            var formData = $(this).serialize();
+            $.ajax({
+                url: 'api.php',
+                type: 'POST',
+                dataType: 'json',
+                data: formData,
+                success: function(response) {
+                    if (response.success) {
+                        alert('Reloj agregado exitosamente');
+                        $('#formAgregar')[0].reset();
+                        cargarTablaRelojes();
+                    } else {
+                        alert('Error al agregar el reloj');
+                    }
+                }
+            });
+        });
+
+        // Manejador de evento para el botón de editar
+        $(document).on('click', '.btn-editar', function() {
+            var relojId = $(this).data('id');
+            // Aquí puedes implementar la lógica para editar el reloj usando AJAX
+            // Puedes mostrar un formulario de edición y cargar los datos del reloj
+            // Luego, puedes enviar una solicitud AJAX al backend PHP para guardar los cambios
+        });
+
+        // Manejador de evento para el botón de eliminar
+        $(document).on('click', '.btn-eliminar', function() {
+            var relojId = $(this).data('id');
+            if (confirm('¿Estás seguro de que deseas eliminar este reloj?')) {
+                $.ajax({
+                    url: 'api.php?id=' + relojId,
+                    type: 'DELETE',
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.success) {
+                            alert('Reloj eliminado exitosamente');
+                            cargarTablaRelojes();
+                        } else {
+                            alert('Error al eliminar el reloj');
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Interfaz de Relojes</title>
+    <style>
+        #message {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h1>Interfaz de Relojes</h1>
+
+    <form id="searchForm">
+        <h2>Buscar Relojes</h2>
+        <label for="id">ID:</label>
+        <input type="text" id="id" name="id">
+        <button type="submit">Buscar</button>
+    </form>
+
+    <form id="createForm">
+        <h2>Crear Relojes</h2>
+        <label for="nombre">Nombre:</label>
+        <input type="text" id="nombre" name="nombre">
+        <label for="marca">Marca:</label>
+        <input type="text" id="marca" name="marca">
+        <label for="precio">Precio:</label>
+        <input type="text" id="precio" name="precio">
+        <label for="material">Material:</label>
+        <input type="text" id="material" name="material">
+        <button type="submit">Crear</button>
+    </form>
+
+    <form id="updateForm">
+        <h2>Actualizar Relojes</h2>
+        <label for="updateId">ID:</label>
+        <input type="text" id="updateId" name="updateId">
+        <label for="updateNombre">Nombre:</label>
+        <input type="text" id="updateNombre" name="updateNombre">
+        <label for="updateMarca">Marca:</label>
+        <input type="text" id="updateMarca" name="updateMarca">
+        <label for="updatePrecio">Precio:</label>
+        <input type="text" id="updatePrecio" name="updatePrecio">
+        <label for="updateMaterial">Material:</label>
+        <input type="text" id="updateMaterial" name="updateMaterial">
+        <button type="submit">Actualizar</button>
+    </form>
+
+    <form id="deleteForm">
+        <h2>Eliminar Relojes</h2>
+        <label for="deleteId">ID:</label>
+        <input type="text" id="deleteId" name="deleteId">
+        <button type="submit">Eliminar</button>
+    </form>
+
+    <div id="message"></div>
+
+    <script>
+        // Función para enviar una solicitud a la API
+        function sendRequest(method, url, data = null) {
+            return new Promise((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
+                xhr.open(method, url, true);
+                xhr.setRequestHeader('Content-Type', 'application/json');
+                xhr.onload = () => {
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        resolve(JSON.parse(xhr.responseText));
+                    } else {
+                        reject(xhr.statusText);
+                    }
+                };
+                xhr.onerror = () => reject(xhr.statusText);
+                xhr.send(data);
+            });
+        }
+
+        // Manejador del formulario de búsqueda
+        document.getElementById('searchForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const id = document.getElementById('id').value;
+            const url = `api.php?id=${id}`;
+            sendRequest('GET', url)
+                .then(response => {
+                    displayResult(response);
+                })
+                .catch(error => {
+                    displayError(`Error: ${error}`);
+                });
+        });
+
+        // Manejador del formulario de creación
+        document.getElementById('createForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const nombre = document.getElementById('nombre').value;
+            const marca = document.getElementById('marca').value;
+            const precio = document.getElementById('precio').value;
+            const material = document.getElementById('material').value;
+            const data = JSON.stringify({ nombre, marca, precio, material });
+            sendRequest('POST', 'api.php', data)
+                .then(response => {
+                    displayResult(response.message);
+                })
+                .catch(error => {
+                    displayError(`Error: ${error}`);
+                });
+        });
+
+        // Manejador del formulario de actualización
+        document.getElementById('updateForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const id = document.getElementById('updateId').value;
+            const nombre = document.getElementById('updateNombre').value;
+            const marca = document.getElementById('updateMarca').value;
+            const precio = document.getElementById('updatePrecio').value;
+            const material = document.getElementById('updateMaterial').value;
+            const url = `api.php?id=${id}`;
+            const data = JSON.stringify({ nombre, marca, precio, material });
+            sendRequest('PUT', url, data)
+                .then(response => {
+                    displayResult(response.message);
+                })
+                .catch(error => {
+                    displayError(`Error: ${error}`);
+                });
+        });
+
+        // Manejador del formulario de eliminación
+        document.getElementById('deleteForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const id = document.getElementById('deleteId').value;
+            const url = `api.php?id=${id}`;
+            sendRequest('DELETE', url)
+                .then(response => {
+                    displayResult(response.message);
+                })
+                .catch(error => {
+                    displayError(`Error: ${error}`);
+                });
+        });
+
+        // Función para mostrar el resultado o mensaje de error
+        function displayResult(result) {
+            const messageElement = document.getElementById('message');
+            messageElement.style.color = 'green';
+            messageElement.textContent = result;
+        }
+
+        function displayError(error) {
+            const messageElement = document.getElementById('message');
+            messageElement.style.color = 'red';
+            messageElement.textContent = error;
+        }
+    </script>
+</body>
+</html>
