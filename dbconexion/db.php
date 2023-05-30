@@ -1,7 +1,7 @@
 <?php 
     $mqtt_secret = "";
     class Database {
-        private $host = '152.67.54.115';
+        private $host = 'localhost';
         private $database_name = 'relojes';
         private $username = 'franco';
         private $password = '12345';
